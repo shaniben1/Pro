@@ -17,10 +17,7 @@ pipeline {
 //       SNYK_TOKEN=credentials('snykToken')
 //    }
 
-
     agent any
-
-
 
 //    stages {
         stage('Test') {
