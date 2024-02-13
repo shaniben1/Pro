@@ -11,8 +11,6 @@ pipeline {
         timeout(time: 3, unit: 'MINUTES')
     }
 
-
-
     //insert credential to environment variable
     //insert to specific environment variable (must this name: SNYK_TOKEN) my snyk's token
 //    environment{
