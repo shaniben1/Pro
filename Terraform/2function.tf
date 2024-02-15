@@ -1,5 +1,13 @@
-resource "aws_iam_role" "hello_lambda_exec" {
-  name = "hello-lambda"
+data "aws_iam_policy" "example" {
+  name = "AmazonAPIGatewayPushToCloudWatchLogs"
+}
+
+
+
+
+
+resource "aws_iam_role" "myapp_lambda_exec" {
+  name = "myapp-lambda"
 
   assume_role_policy = <<POLICY
 {
@@ -17,43 +25,49 @@ resource "aws_iam_role" "hello_lambda_exec" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "hello_lambda_policy" {
-  role       = aws_iam_role.hello_lambda_exec.name
+resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
+  role       = aws_iam_role.myapp_lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_lambda_function" "hello" {
-  function_name = "hello"
-
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_hello.key
-
-  runtime = "nodejs16.x"
-  handler = "function.handler"
-
-  source_code_hash = data.archive_file.lambda_hello.output_base64sha256
-
-  role = aws_iam_role.hello_lambda_exec.arn
+resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
+  role       = aws_iam_role.myapp_lambda_exec.name
+  policy_arn = data.aws_iam_policy.example.arn
 }
 
-resource "aws_cloudwatch_log_group" "hello" {
-  name = "/aws/lambda/${aws_lambda_function.hello.function_name}"
+
+resource "aws_lambda_function" "myapp" {
+  function_name = "myapp"
+
+  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_key    = aws_s3_object.lambda_myapp.key
+
+  runtime = "python3.11"
+  handler = "myApp.handler"
+
+  source_code_hash = data.archive_file.lambda_myapp.output_base64sha256
+
+  role = aws_iam_role.myapp_lambda_exec.arn
+}
+
+resource "aws_cloudwatch_log_group" "myapp" {
+  name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
   retention_in_days = 14
 }
 
-data "archive_file" "lambda_hello" {
+data "archive_file" "lambda_myapp" {
   type = "zip"
 
-  source_dir  = "../${path.module}/hello"
-  output_path = "../${path.module}/hello.zip"
+  source_dir  = "../CloudwatchLoger"
+  output_path = "myapp.zip"
 }
 
-resource "aws_s3_object" "lambda_hello" {
+resource "aws_s3_object" "lambda_myapp" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
-  key    = "hello.zip"
-  source = data.archive_file.lambda_hello.output_path
+  key    = "myapp.zip"
+  source = data.archive_file.lambda_myapp.output_path
 
-  etag = filemd5(data.archive_file.lambda_hello.output_path)
+  etag = filemd5(data.archive_file.lambda_myapp.output_path)
 }
