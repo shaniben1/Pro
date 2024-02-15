@@ -25,7 +25,7 @@ resource "aws_iam_role" "myapp_lambda_exec" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
+resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
   role       = aws_iam_role.myapp_lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
