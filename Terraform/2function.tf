@@ -1,4 +1,4 @@
-data "aws_iam_policy" "example" {
+data "aws_iam_policy" "AmazonAPIGatewayPushToCloudWatchLogs" {
   name = "AmazonAPIGatewayPushToCloudWatchLogs"
 }
 
@@ -32,7 +32,7 @@ resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
 
 resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
   role       = aws_iam_role.myapp_lambda_exec.name
-  policy_arn = data.aws_iam_policy.example.arn
+  policy_arn = data.aws_iam_policy.AmazonAPIGatewayPushToCloudWatchLogs.arn
 }
 
 
