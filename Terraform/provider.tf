@@ -14,7 +14,10 @@ terraform {
 
   required_version = "~> 1.0"
 }
-
+module "apigateway-v2" {
+  source  = "terraform-aws-modules/apigateway-v2/aws"
+  version = "3.1.0"
+}
 provider "aws" {
   region = "us-east-1"
 }
