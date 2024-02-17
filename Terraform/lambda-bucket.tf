@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "lambda_bucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = aws_s3_bucket.lambda_bucket.bucket
 
   block_public_acls       = true
   block_public_policy     = true

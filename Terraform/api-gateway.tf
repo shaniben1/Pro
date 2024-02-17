@@ -4,8 +4,9 @@ module "api_gateway" {
   source = "terraform-aws-modules/apigateway-v2/aws"
 
   name          = "dev-http"
-  description   = "My awesome HTTP API Gateway"
+  description   = "Shani HTTP API Gateway"
   protocol_type = "HTTP"
+
 
 
   # Routes and integrations

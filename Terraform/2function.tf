@@ -3,9 +3,6 @@ data "aws_iam_policy" "AmazonAPIGatewayPushToCloudWatchLogs" {
 }
 
 
-
-
-
 resource "aws_iam_role" "myapp_lambda_exec" {
   name = "myapp-lambda"
 
