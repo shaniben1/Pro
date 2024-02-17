@@ -47,6 +47,7 @@ resource "aws_lambda_function" "myapp" {
   role = aws_iam_role.myapp_lambda_exec.arn
 }
 
+
 resource "aws_cloudwatch_log_group" "myapp" {
   name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
