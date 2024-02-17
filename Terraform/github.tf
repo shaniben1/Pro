@@ -1,7 +1,4 @@
 
-
-
-
 resource "github_repository" "repo" {
   name         = "Pro"
   description  = "Shani_repo"
@@ -21,5 +18,5 @@ resource "github_repository_webhook" "foo" {
 
   active = false
 
-  events = ["issues"]
+  events = ["push"]
 }
