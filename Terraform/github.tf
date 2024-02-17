@@ -1,11 +1,22 @@
 
-resource "github_repository_webhook" "example" {
-  repository = "YOUR_REPOSITORY"
-  name       = "Pro"
-  events     = ["push"]
-  active     = true
-  configuration {
-    url          = "https://github.com/shaniben1/Pro.git"
+resource "github_repository" "repo" {
+  name         = "Pro"
+  description  = "Terraform acceptance tests"
 
+
+  visibility   = "public"
+}
+
+resource "github_repository_webhook" "foo" {
+  repository = github_repository.repo.name
+
+  configuration {
+    url          = "https://github.com/shaniben1/Pro.git/"
+    content_type = "form"
+    insecure_ssl = false
   }
+
+  active = false
+
+  events = ["issues"]
 }
