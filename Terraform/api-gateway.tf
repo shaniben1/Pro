@@ -9,6 +9,7 @@ module "apigateway-v2" {
 
   create_api_domain_name = false
 
+
   # Routes and integrations
   integrations = {
     "POST /" = {
