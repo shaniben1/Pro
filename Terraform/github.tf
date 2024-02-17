@@ -1,7 +1,7 @@
 
 resource "github_repository" "repo" {
   name         = "Pro"
-  description  = "Terraform acceptance tests"
+  description  = "Shani_repo"
 
 
   visibility   = "public"
