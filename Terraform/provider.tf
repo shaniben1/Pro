@@ -14,7 +14,7 @@ terraform {
     github = {
       source  = "integrations/github"
       version = "~> 5.0"
-      token = var.token
+      GITHUB_TOKEN = var.token
     }
 
 
