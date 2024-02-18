@@ -10,7 +10,7 @@ resource "github_repository_webhook" "foo" {
 
   configuration {
     url          = "https://github.com/shaniben1/Pro.git/"
-    content_type = "form"
+    content_type = "json"
   }
 
   active = false

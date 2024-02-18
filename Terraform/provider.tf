@@ -19,15 +19,24 @@ terraform {
  }
 
    required_version = "~> 1.0"
-
-
 }
-provider "github" {
-  github_token = var.token
-}
+
 provider "aws" {
   region = "us-east-1"
 }
+
+
+variable "github_token" {}
+
+provider "github" {
+  token = var.github_token
+}
+
+
+
+
+
+
 
 
 
