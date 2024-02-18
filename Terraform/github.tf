@@ -2,8 +2,6 @@
 resource "github_repository" "repo" {
   name         = "Pro"
   description  = "Shani_repo"
-
-
   visibility   = "public"
 }
 
@@ -13,7 +11,6 @@ resource "github_repository_webhook" "foo" {
   configuration {
     url          = "https://github.com/shaniben1/Pro.git/"
     content_type = "form"
-    insecure_ssl = false
   }
 
   active = false
