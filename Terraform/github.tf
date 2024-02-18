@@ -8,6 +8,15 @@ resource "github_repository_webhook" "webhook" {
     content_type = "form"
   }
 
+
+
+
+
+
+
+
+
+
   active = false
 
   events = ["push","pull_request"]
