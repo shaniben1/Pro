@@ -6,23 +6,30 @@ terraform {
       version = "~> 5.0.0"
     }
 
+    github = {
+      source  = "integrations/github"
+      version = "~> 5.0"
+    }
+
     archive = {
       source  = "hashicorp/archive"
       version = "~> 2.2.0"
     }
 
-    github = {
-      source  = "integrations/github"
-      version = "~> 5.0"
-      GITHUB_TOKEN = var.token
-    }
+ }
 
-
-  }
-
-  required_version = "~> 1.0"
+   required_version = "~> 1.0"
 }
+
 
 provider "aws" {
   region = "us-east-1"
 }
+
+
+provider "github" {
+  token = var.GITHUB_TOKEN
+}
+
+
+
