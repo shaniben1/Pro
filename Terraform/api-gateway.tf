@@ -1,4 +1,4 @@
-module "apigateway-v2" {
+module "apigateway_v2" {
   source  = "terraform-aws-modules/apigateway-v2/aws"
   version = "3.1.0"
 
