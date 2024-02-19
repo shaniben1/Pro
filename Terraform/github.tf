@@ -1,7 +1,5 @@
 resource "github_repository_webhook" "webhook" {
-  repository ="Pro"
-
-
+  repository = "Pro"
 
   configuration {
     url          = module.apigateway_v2.apigatewayv2_api_api_endpoint
@@ -10,5 +8,5 @@ resource "github_repository_webhook" "webhook" {
 
   active = false
 
-  events = ["push","pull_request"]
+  events = ["pull_request"]
 }
