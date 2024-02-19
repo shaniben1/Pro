@@ -42,7 +42,7 @@ resource "aws_lambda_function" "myapp" {
   runtime = "python3.9"
   handler = "myApp.handler"
 
-  source_code_hash = data.archive_file.lambda_myapp.output_base64sha256
+  source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
 
   role = aws_iam_role.myapp_lambda_exec.arn
 }
