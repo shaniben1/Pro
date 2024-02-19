@@ -1,18 +1,38 @@
-resource "aws_apigatewayv2_api" "my_api" {
-  name          = "my-api"
-  protocol_type = "HTTP"
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "MyAPI"
+  description = "My REST API"
 }
 
-resource "aws_apigatewayv2_integration" "my_lambda_integration" {
-  api_id           = aws_apigatewayv2_api.my_api.id
-  integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.myapp.invoke_arn
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "webhook"
 }
 
-resource "aws_apigatewayv2_route" "my_route" {
-  api_id    = aws_apigatewayv2_api.my_api.id
-  route_key = "POST /webhook"
-  target    = "integrations/${aws_apigatewayv2_integration.my_lambda_integration.id}"
+resource "aws_api_gateway_method" "my_post_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "my_lambda_integration" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  resource_id = aws_api_gateway_resource.my_resource.id
+  http_method = aws_api_gateway_method.my_post_method.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.myapp.invoke_arn
+}
+
+resource "aws_api_gateway_deployment" "my_deployment" {
+  depends_on = [
+    aws_api_gateway_integration.my_lambda_integration
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  stage_name  = "prod"
 }
 
 resource "aws_lambda_permission" "api_gw" {
@@ -20,32 +40,5 @@ resource "aws_lambda_permission" "api_gw" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.myapp.function_name
   principal     = "apigateway.amazonaws.com"
-
-  // This source arn restricts API Gateway to invoke only the specified route
-  source_arn = "${aws_apigatewayv2_api.my_api.execution_arn}/*/*"
-}
-
-// Optionally, create a deployment if you need to invoke a specific deployment rather than auto-deploy
-resource "aws_apigatewayv2_deployment" "my_deployment" {
-  api_id = aws_apigatewayv2_api.my_api.id
-
-  // Forces a new deployment if the routes change
-  triggers = {
-    redeployment = sha1(jsonencode(aws_apigatewayv2_route.my_route))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  depends_on = [
-    aws_apigatewayv2_route.my_route,
-  ]
-}
-
-// Reference the deployment in the stage if you created one
-resource "aws_apigatewayv2_stage" "my_stage" {
-  api_id        = aws_apigatewayv2_api.my_api.id
-  name          = "default"
-  deployment_id = aws_apigatewayv2_deployment.my_deployment.id
+  source_arn    = "${aws_api_gateway_rest_api.my_api.execution_arn}/prod/POST/webhook"
 }
