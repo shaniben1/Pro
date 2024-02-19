@@ -54,7 +54,7 @@ resource "aws_cloudwatch_log_group" "myapp" {
   retention_in_days = 14
 }
 
-data "archive_file" "lambda_myapp" {
+data "archive_file" "lambda_myapp_zip" {
   type = "zip"
 
   source_dir  = "../CloudwatchLoger"
@@ -65,7 +65,7 @@ resource "aws_s3_object" "lambda_myapp" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
   key    = "myapp.zip"
-  source = data.archive_file.lambda_myapp.output_path
+  source = data.archive_file.lambda_myapp_zip.output_path
 
-  etag = filemd5(data.archive_file.lambda_myapp.output_path)
+  etag = filemd5(data.archive_file.lambda_myapp_zip.output_path)
 }
