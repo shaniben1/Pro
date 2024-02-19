@@ -61,6 +61,11 @@ data "archive_file" "lambda_myapp_zip" {
   output_path = "myapp.zip"
 }
 
+
+
+
+
+
 resource "aws_s3_object" "lambda_myapp" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
