@@ -1,16 +1,6 @@
-
-
-/*
-resource "aws_lambda_function" "github_webhook_handler" {
-  function_name = "myApp"
-  role          = aws_iam_role.myapp_lambda_exec.arn
-  handler       = "myApp.lambda_handler"
-  runtime       = "python3.9"
-}
-*/
-
 resource "aws_api_gateway_rest_api" "github_webhook_api" {
   name = "github-webhook-api"
+  description = "My REST API"
 }
 
 resource "aws_api_gateway_resource" "github_webhook_resource" {
@@ -31,7 +21,6 @@ resource "aws_lambda_permission" "apigw_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.myapp.arn
   principal     = "apigateway.amazonaws.com"
-
   source_arn = "${aws_api_gateway_rest_api.github_webhook_api.execution_arn}/*/*/webhook/POST"
 }
 
@@ -45,12 +34,67 @@ resource "aws_api_gateway_integration" "github_webhook_integration" {
 }
 
 # Deploy the API Gateway
-resource "aws_api_gateway_deployment" "github_webhook_api_deployment" {
+resource "aws_api_gateway_deployment" "github_webhook_api_deployment"
+{
   depends_on = [aws_api_gateway_integration.github_webhook_integration]
 
   rest_api_id = aws_api_gateway_rest_api.github_webhook_api.id
   stage_name  = "prod"
 }
+
+
+#___________________________________________________________________
+
+
+
+# ...
+
+resource "aws_api_gateway_usage_plan" "myusageplan" {
+  name = "my_usage_plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.github_webhook_api.id
+    stage  = aws_api_gateway_deployment.github_webhook_api_deployment.stage_name
+  }
+}
+
+resource "aws_api_gateway_api_key" "mykey" {
+  name = "my_key"
+}
+
+resource "aws_api_gateway_usage_plan_key" "main" {
+  key_id        = aws_api_gateway_api_key.mykey.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.myusageplan.id
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
