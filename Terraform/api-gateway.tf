@@ -29,7 +29,7 @@ resource "aws_api_gateway_method" "github_webhook_method" {
 resource "aws_lambda_permission" "apigw_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.github_webhook_handler.arn
+  function_name = aws_lambda_function.myapp.arn
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.github_webhook_api.execution_arn}/*/*/webhook/POST"
@@ -41,7 +41,7 @@ resource "aws_api_gateway_integration" "github_webhook_integration" {
   http_method             = aws_api_gateway_method.github_webhook_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.github_webhook_handler.invoke_arn
+  uri                     = aws_lambda_function.myapp.invoke_arn
 }
 
 # Deploy the API Gateway
