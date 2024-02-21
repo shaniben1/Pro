@@ -1,13 +1,13 @@
 
 
-
+/*
 resource "aws_lambda_function" "github_webhook_handler" {
   function_name = "myApp"
   role          = aws_iam_role.myapp_lambda_exec.arn
   handler       = "myApp.lambda_handler"
   runtime       = "python3.9"
 }
-
+*/
 
 resource "aws_api_gateway_rest_api" "github_webhook_api" {
   name = "github-webhook-api"
