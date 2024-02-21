@@ -33,8 +33,10 @@ resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
 }
 
 
+
+
 resource "aws_lambda_function" "myapp" {
-  function_name = "myapp"
+  function_name = "myApp"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_myapp.key
@@ -48,11 +50,7 @@ resource "aws_lambda_function" "myapp" {
 }
 
 
-resource "aws_cloudwatch_log_group" "myapp" {
-  name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
-  retention_in_days = 14
-}
 
 data "archive_file" "lambda_myapp_zip" {
   type = "zip"
@@ -62,15 +60,19 @@ data "archive_file" "lambda_myapp_zip" {
 }
 
 
-
-
-
-
 resource "aws_s3_object" "lambda_myapp" {
+
   bucket = aws_s3_bucket.lambda_bucket.id
 
   key    = "myapp.zip"
   source = data.archive_file.lambda_myapp_zip.output_path
 
   etag = filemd5(data.archive_file.lambda_myapp_zip.output_path)
+}
+
+
+resource "aws_cloudwatch_log_group" "myapp" {
+  name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
+
+  retention_in_days = 14
 }
