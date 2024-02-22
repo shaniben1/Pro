@@ -58,12 +58,12 @@ resource "aws_api_gateway_usage_plan" "myusageplan" {
   }
 }
 
-resource "aws_api_gateway_api_key" "mykey" {
+resource "aws_api_gateway_api_key" "my-key" {
   name = "my_key"
 }
 
 resource "aws_api_gateway_usage_plan_key" "main" {
-  key_id        = aws_api_gateway_api_key.mykey.id
+  key_id        = aws_api_gateway_api_key.my-key.id
   key_type      = "API_KEY"
   usage_plan_id = aws_api_gateway_usage_plan.myusageplan.id
 }
@@ -71,33 +71,9 @@ resource "aws_api_gateway_usage_plan_key" "main" {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+output "api_key_value" {
+  value = aws_api_gateway_api_key.my-key.value
+}
 
 
 
