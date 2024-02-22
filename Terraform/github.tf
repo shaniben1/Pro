@@ -17,7 +17,7 @@ resource "github_repository_webhook" "webhook" {
   configuration {
     url          = aws_api_gateway_deployment.github_webhook_api_deployment.invoke_url
     insecure_ssl = false
-    content_type = "form"
+    content_type = "json"
 
   }
   events = ["pull_request"]
