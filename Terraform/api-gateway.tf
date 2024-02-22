@@ -1,26 +1,50 @@
-resource "aws_iam_role" "myapp_rest_api_exec" {
-  name = "myapp-lambda"
 
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "apigateway.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
+
+resource "aws_api_gateway_account" "example" {
+  cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn
 }
 
+resource "aws_iam_role" "api_gateway_role" {
+  name = "api_gateway_logs_role"
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = {
+        Service = "apigateway.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
 
+  # Add policies as necessary
+}
 
+resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
+  role       = aws_iam_role.api_gateway_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+}
 
+resource "aws_api_gateway_stage" "example" {
+  stage_name = "example"
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+
+  # Enable CloudWatch logging for the stage
+  logging_config {
+    level   = "INFO"
+    metrics_enabled = true
+    data_trace_enabled = true
+    logging_level = "INFO"
+    destination_arn = aws_cloudwatch_log_group.example.arn
+  }
+}
+
+resource "aws_cloudwatch_log_group" "example" {
+  name = "/aws/api-gateway/example"
+  retention_in_days = 7 # Adjust retention period as needed
+}
+#_______________________________________________________
 
 
 resource "aws_api_gateway_rest_api" "rest_api" {
@@ -53,9 +77,10 @@ resource "aws_api_gateway_integration" "github_webhook_integration" {
   rest_api_id             = aws_api_gateway_rest_api.rest_api.id
   resource_id             = aws_api_gateway_resource.resource.id
   http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
   type                    = "AWS"
   uri                     = aws_lambda_function.myapp.invoke_arn
-  credentials: null
+
 }
 
 # Deploy the API Gateway
