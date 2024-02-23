@@ -114,24 +114,27 @@ resource "aws_cloudwatch_log_group" "example" {
 
 
 
+variable "stage_name" {
+  default = "dev"
+  type    = string
+}
+
 
 
 resource "aws_api_gateway_stage" "example" {
-  stage_name    = "dev"
-  rest_api_id   = aws_api_gateway_rest_api.rest_api.id
-  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
+  depends_on = [aws_cloudwatch_log_group.example]
 
-  logging_config {
-    destination_arn = aws_cloudwatch_log_group.example.arn
-    level           = "INFO"
-  }
+  stage_name = var.stage_name
+  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+  destination_arn = aws_cloudwatch_log_group.example.arn
+
 }
+
+
 
 resource "aws_cloudwatch_log_group" "example" {
   name = "/aws/api-gateway/shani-api"
+  retention_in_days = 7
 }
-
-
-
-
 
