@@ -117,7 +117,7 @@ resource "aws_cloudwatch_log_group" "example" {
 
 
 resource "aws_api_gateway_stage" "example" {
-  stage_name    = "test"
+  stage_name    = "dev"
   rest_api_id   = aws_api_gateway_rest_api.rest_api.id
   deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
 
@@ -128,7 +128,7 @@ resource "aws_api_gateway_stage" "example" {
 }
 
 resource "aws_cloudwatch_log_group" "example" {
-  name = "/aws/api-gateway/example-api"
+  name = "/aws/api-gateway/shani-api"
 }
 
 
