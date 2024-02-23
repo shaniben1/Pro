@@ -1,5 +1,5 @@
 
-
+/*
 resource "aws_api_gateway_account" "example" {
   cloudwatch_role_arn = aws_iam_role.api_gateway_role.arn
 }
@@ -38,12 +38,14 @@ resource "aws_api_gateway_stage" "example" {
     logging_level = "INFO"
     destination_arn = aws_cloudwatch_log_group.example.arn
   }
+  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
 }
 
 resource "aws_cloudwatch_log_group" "example" {
   name = "/aws/api-gateway/example"
   retention_in_days = 7 # Adjust retention period as needed
 }
+*/
 #_______________________________________________________
 
 
@@ -70,35 +72,66 @@ resource "aws_lambda_permission" "apigw_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.myapp.arn
   principal     = "apigateway.amazonaws.com"
-  #source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*/*/webhook/POST"
+  source_arn = "${aws_api_gateway_rest_api.rest_api.execution_arn}/*"
 }
 
 resource "aws_api_gateway_integration" "github_webhook_integration" {
   rest_api_id             = aws_api_gateway_rest_api.rest_api.id
   resource_id             = aws_api_gateway_resource.resource.id
   http_method             = aws_api_gateway_method.my_method.http_method
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
-  type                    = "AWS"
   uri                     = aws_lambda_function.myapp.invoke_arn
 
 }
 
 # Deploy the API Gateway
-resource "aws_api_gateway_deployment" "github_webhook_api_deployment"
-{
+resource "aws_api_gateway_deployment" "github_webhook_api_deployment" {
   depends_on = [aws_api_gateway_integration.github_webhook_integration]
-
   rest_api_id = aws_api_gateway_rest_api.rest_api.id
-  stage_name  = "prod"
+  stage_name  = "dev"
+}
+/*
+variable "stage_name" {
+  default = "shani"
+  type    = string
+}
+resource "aws_api_gateway_stage" "example" {
+  depends_on = [aws_cloudwatch_log_group.example]
+
+  stage_name = var.stage_name
+  # ... other configuration ...
+  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+}
+
+resource "aws_cloudwatch_log_group" "example" {
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.rest_api.id}/${var.stage_name}"
+  retention_in_days = 7
+  # ... potentially other configuration ...
+}
+*/
+
+
+
+
+
+resource "aws_api_gateway_stage" "example" {
+  stage_name    = "test"
+  rest_api_id   = aws_api_gateway_rest_api.rest_api.id
+  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
+
+  logging_config {
+    destination_arn = aws_cloudwatch_log_group.example.arn
+    level           = "INFO"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "example" {
+  name = "/aws/api-gateway/example-api"
 }
 
 
 
-
-
-
-output "hello_base_url" {
-  value = aws_api_gateway_deployment.github_webhook_api_deployment.invoke_url
-}
 
 
