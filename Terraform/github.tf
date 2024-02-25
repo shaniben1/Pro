@@ -2,7 +2,7 @@ resource "github_repository_webhook" "webhook" {
   repository = "Pro"
 
   configuration {
-    url          = aws_api_gateway_deployment.my_deployment.invoke_url
+    url          = "https://cawl94idt3.execute-api.us-east-1.amazonaws.com/dev/webhook"
     insecure_ssl = false
     content_type = "json"
 

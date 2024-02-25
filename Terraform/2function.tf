@@ -42,23 +42,37 @@ resource "aws_iam_policy" "lambda_logging" {
   description = "IAM policy for logging from a lambda"
   path = "/"
 
-  policy = <<EOF
+    policy = <<EOF
 {
-  "Version" = "2012-10-17" ,
-  "Statement" = : [
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      "Action" = [
-        "logs:CreateLogGroup"
-        "logs:CreateLogStream"
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
-      "Resource": "arn:aws:logs:*:*:*",
-      "Effect": "Allow"
+      "Resource": "arn:aws:logs:*:*:*"
     }
- ]
+  ]
 }
 EOF
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #good
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
@@ -77,7 +91,7 @@ resource "aws_lambda_function" "myapp" {
   handler = "myapp.handler"
   source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
   role = aws_iam_role.lambda_role.arn
-  depends_on = [aws_iam_role_policy_attachment.lambda_logs,aws_cloudwatch_log_group.cloudwatch_myapp]
+  #depends_on = [aws_iam_role_policy_attachment.lambda_logs,aws_cloudwatch_log_group.cloudwatch_myapp]
 }
 
 #good
