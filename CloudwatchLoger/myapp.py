@@ -1,14 +1,3 @@
-#def handler(event, context):
-
-#    return {"statuscode":"body"}
-
-
-
-import boto3
-import json
-
-
-
 def lambda_handler(event, context):
     # Extract information from GitHub webhook payload
     try:

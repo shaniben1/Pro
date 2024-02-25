@@ -1,7 +1,197 @@
-resource "aws_api_gateway_rest_api" "rest_api" {
-  name = "MyAPI"
-  #description = "My REST API"
+/*?
+resource "aws_lambda_permission" "api_gw" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.myapp.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.my_api.execution_arn}/prod/POST/webhook"
 }
+*/
+
+
+
+
+#good
+resource "aws_api_gateway_rest_api" "my_api" {
+  name        = "rest_api"
+}
+
+#good
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  parent_id   = aws_api_gateway_rest_api.my_api.root_resource_id
+  path_part   = "webhook" #var.endpoint_path
+}
+#good
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "POST" #GET
+  authorization = "NONE"
+}
+#good
+resource "aws_api_gateway_integration" "api_integration_lambda" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  resource_id = aws_api_gateway_resource.my_resource.id
+  http_method = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.myapp.invoke_arn
+}
+#good
+resource "aws_lambda_permission" "api_gw" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.myapp.function_name #var.lambda_function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${aws_api_gateway_rest_api.my_api.id}/*/${aws_api_gateway_method.my_method.http_method}${aws_api_gateway_resource.my_resource.path}"
+}
+
+resource "aws_api_gateway_deployment" "my_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.my_api.id
+  lifecycle {
+    create_before_destroy = true
+  }
+  depends_on = [aws_api_gateway_method.my_method,aws_api_gateway_integration.api_integration_lambda]
+  #triggers
+
+}
+
+resource "aws_api_gateway_stage" "my_stage" {
+  deployment_id = aws_api_gateway_deployment.my_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  stage_name    = "dev"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+resource "aws_api_gateway_deployment" "example" {
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+
+  triggers = {
+    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.rest_api.body))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "example" {
+  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.rest_api.id
+  stage_name    = var.stage_name
+}
+
+
+
+
+
+
+
+resource "aws_api_gateway_method_settings" "example" {
+  rest_api_id = aws_api_gateway_rest_api.rest_api.id
+  stage_name  = aws_api_gateway_stage.example.stage_name
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled = true
+    logging_level   = "INFO"
+  }
+}
+
+
+
 
 resource "aws_api_gateway_resource" "resource" {
   rest_api_id = aws_api_gateway_rest_api.rest_api.id
@@ -51,20 +241,12 @@ variable "stage_name" {
 
 
 
-resource "aws_api_gateway_stage" "example" {
-  depends_on = [aws_cloudwatch_log_group.example]
 
-  stage_name = var.stage_name
-  deployment_id = aws_api_gateway_deployment.github_webhook_api_deployment.id
-  rest_api_id = aws_api_gateway_rest_api.rest_api.id
-  destination_arn = aws_cloudwatch_log_group.example.arn
-
-}
 
 
 
 resource "aws_cloudwatch_log_group" "example" {
-  name = "/aws/api-gateway/shani-api"
+  name = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.rest_api.id}/${var.stage_name}"
   retention_in_days = 7
 }
 

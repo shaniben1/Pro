@@ -1,10 +1,24 @@
+/*??
 data "aws_iam_policy" "AmazonAPIGatewayPushToCloudWatchLogs" {
   name = "AmazonAPIGatewayPushToCloudWatchLogs"
 }
+resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = data.aws_iam_policy.AmazonAPIGatewayPushToCloudWatchLogs.arn
+}
 
 
-resource "aws_iam_role" "myapp_lambda_exec" {
-  name = "myapp-lambda"
+resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+#____________________________________________________________________
+*/
+
+
+
+resource "aws_iam_role" "lambda_role" {
+  name = "lambda_role"
 
   assume_role_policy = <<POLICY
 {
@@ -22,36 +36,60 @@ resource "aws_iam_role" "myapp_lambda_exec" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
-  role       = aws_iam_role.myapp_lambda_exec.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+
+resource "aws_iam_policy" "lambda_logging" {
+  name = "lambda_logging"
+  description = "IAM policy for logging from a lambda"
+  path = "/"
+
+  policy = <<EOF
+{
+  "Version" = "2012-10-17" ,
+  "Statement" = : [
+    {
+      "Action" = [
+        "logs:CreateLogGroup"
+        "logs:CreateLogStream"
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+ ]
+}
+EOF
 }
 
-resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
-  role       = aws_iam_role.myapp_lambda_exec.name
-  policy_arn = data.aws_iam_policy.AmazonAPIGatewayPushToCloudWatchLogs.arn
+#good
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
-
-
-
+#good
 resource "aws_lambda_function" "myapp" {
-  function_name = "myApp"
+  function_name = "myapp" #var.lambda_function_name
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_myapp.key
 
   runtime = "python3.9"
-  handler = "myApp.handler"
-
+  handler = "myapp.handler"
   source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
+  role = aws_iam_role.lambda_role.arn
+  depends_on = [
 
-  role = aws_iam_role.myapp_lambda_exec.arn
+
+
+
+
+
+  ]
 }
 
 
 
-
+#good
 data "archive_file" "lambda_myapp_zip" {
   type = "zip"
 
@@ -59,7 +97,7 @@ data "archive_file" "lambda_myapp_zip" {
   output_path = "myapp.zip"
 }
 
-
+#good
 resource "aws_s3_object" "lambda_myapp" {
 
   bucket = aws_s3_bucket.lambda_bucket.id
@@ -70,9 +108,13 @@ resource "aws_s3_object" "lambda_myapp" {
   etag = filemd5(data.archive_file.lambda_myapp_zip.output_path)
 }
 
-
+#good
 resource "aws_cloudwatch_log_group" "myapp" {
   name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
   retention_in_days = 14
 }
+
+
+
+
