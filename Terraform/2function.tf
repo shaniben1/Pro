@@ -77,17 +77,8 @@ resource "aws_lambda_function" "myapp" {
   handler = "myapp.handler"
   source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
   role = aws_iam_role.lambda_role.arn
-  depends_on = [
-
-
-
-
-
-
-  ]
+  depends_on = [aws_iam_role_policy_attachment.lambda_logs,aws_cloudwatch_log_group.cloudwatch_myapp]
 }
-
-
 
 #good
 data "archive_file" "lambda_myapp_zip" {
@@ -109,7 +100,7 @@ resource "aws_s3_object" "lambda_myapp" {
 }
 
 #good
-resource "aws_cloudwatch_log_group" "myapp" {
+resource "aws_cloudwatch_log_group" "cloudwatch_myapp" {
   name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
   retention_in_days = 14
