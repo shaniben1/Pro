@@ -59,7 +59,6 @@ resource "aws_api_gateway_deployment" "my_deployment" {
   }
   depends_on = [aws_api_gateway_method.my_method,aws_api_gateway_integration.api_integration_lambda]
 
-
 }
 
 resource "aws_api_gateway_stage" "my_stage" {
@@ -70,7 +69,7 @@ resource "aws_api_gateway_stage" "my_stage" {
 
 
 #________________________________________________________________________
-
+/*
 
 resource "aws_iam_policy" "api_gateway_cloudwatch_logs_policy" {
   name        = "APIGatewayCloudWatchLogsPolicy"
@@ -130,29 +129,21 @@ resource "aws_api_gateway_stage" "stage" {
   stage_name    = "dev"
   rest_api_id   = aws_api_gateway_rest_api.my_api.id
   deployment_id = aws_api_gateway_deployment.my_deployment.id
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+    format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"method\":\"$context.httpMethod\",\"resourcePath\":\"$context.resourcePath\",\"status\":\"$context.status\",\"responseLength\":$context.responseLength,\"requestTime\":\"$context.requestTime\",\"responseTime\":\"$context.responseTime\"}"
+  }
 }
 
 # Define the CloudWatch Log Group
 resource "aws_cloudwatch_log_group" "api_gateway_logs" {
   name = "/aws/api-gateway/${aws_api_gateway_rest_api.my_api.name}"
 }
+*/
 
-# Define the API Gateway Access Log Group
-resource "aws_api_gateway_account" "api_gateway_account" {
-  cloudwatch_role_arn = aws_iam_role.api_gateway_execution_role.arn
-}
 
-# Associate Access Logging Settings with the API Gateway Stage
-resource "aws_api_gateway_stage" "api_gateway_stage_logging" {
-  stage_name    = aws_api_gateway_stage.stage.stage_name
-  rest_api_id   = aws_api_gateway_rest_api.my_api.id
 
-  access_log_settings {
-    destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
-    format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"method\":\"$context.httpMethod\",\"resourcePath\":\"$context.resourcePath\",\"status\":\"$context.status\",\"responseLength\":$context.responseLength,\"requestTime\":\"$context.requestTime\",\"responseTime\":\"$context.responseTime\"}"
-  }
-  deployment_id = aws_api_gateway_deployment.my_deployment.id
-}
+
 
 
 
