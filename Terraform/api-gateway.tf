@@ -67,3 +67,93 @@ resource "aws_api_gateway_stage" "my_stage" {
   rest_api_id   = aws_api_gateway_rest_api.my_api.id
   stage_name    = "dev"
 }
+
+
+#________________________________________________________________________
+
+
+resource "aws_iam_policy" "api_gateway_cloudwatch_logs_policy" {
+  name        = "APIGatewayCloudWatchLogsPolicy"
+  description = "Allows API Gateway to write logs to CloudWatch"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+# Define IAM Role for API Gateway to Write Logs to CloudWatch
+resource "aws_iam_role" "api_gateway_execution_role" {
+  name               = "APIGatewayExecutionRole"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+
+# Attach Policy to Allow API Gateway to Write Logs to CloudWatch
+resource "aws_iam_role_policy_attachment" "api_gateway_logs_policy_attachment" {
+  role       = aws_iam_role.api_gateway_execution_role.name
+  policy_arn = aws_iam_policy.api_gateway_cloudwatch_logs_policy.arn
+}
+
+resource "aws_cloudwatch_log_group" "cloudwatch_api" {
+  name = "/aws/api/${aws_api_gateway_rest_api.my_api.name}"
+
+  retention_in_days = 14
+}
+
+# Define the API Gateway Stage
+resource "aws_api_gateway_stage" "stage" {
+  stage_name    = "dev"
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+  deployment_id = aws_api_gateway_deployment.my_deployment.id
+}
+
+# Define the CloudWatch Log Group
+resource "aws_cloudwatch_log_group" "api_gateway_logs" {
+  name = "/aws/api-gateway/${aws_api_gateway_rest_api.my_api.name}"
+}
+
+# Define the API Gateway Access Log Group
+resource "aws_api_gateway_account" "api_gateway_account" {
+  cloudwatch_role_arn = aws_iam_role.api_gateway_execution_role.arn
+}
+
+# Associate Access Logging Settings with the API Gateway Stage
+resource "aws_api_gateway_stage" "api_gateway_stage_logging" {
+  stage_name    = aws_api_gateway_stage.stage.stage_name
+  rest_api_id   = aws_api_gateway_rest_api.my_api.id
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+    format          = "{\"requestId\":\"$context.requestId\",\"ip\":\"$context.identity.sourceIp\",\"method\":\"$context.httpMethod\",\"resourcePath\":\"$context.resourcePath\",\"status\":\"$context.status\",\"responseLength\":$context.responseLength,\"requestTime\":\"$context.requestTime\",\"responseTime\":\"$context.responseTime\"}"
+  }
+  deployment_id = aws_api_gateway_deployment.my_deployment.id
+}
+
+
+
+
