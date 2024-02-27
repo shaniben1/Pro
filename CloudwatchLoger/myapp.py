@@ -1,6 +1,6 @@
 import json
 
-def lambda_handler(event, context):
+def handler(event, context):
     # Extract information from GitHub webhook payload
     try:
         payload = json.loads(event['body'])
