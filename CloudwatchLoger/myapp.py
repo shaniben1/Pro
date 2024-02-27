@@ -1,10 +1,5 @@
 import json
 
-
-
-
-
-
 def handler(event, context):
     # Extract information from GitHub webhook payload
     try:
