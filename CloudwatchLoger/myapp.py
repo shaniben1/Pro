@@ -1,3 +1,5 @@
+import json
+
 def lambda_handler(event, context):
     # Extract information from GitHub webhook payload
     try:
