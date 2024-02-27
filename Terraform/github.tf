@@ -2,7 +2,7 @@ resource "github_repository_webhook" "webhook" {
   repository = "Pro"
 
   configuration {
-    url          = "https://cawl94idt3.execute-api.us-east-1.amazonaws.com/dev/webhook"
+    url          = "https://quhvwdej85.execute-api.us-east-1.amazonaws.com/dev/webhook"
     insecure_ssl = false
     content_type = "json"
 
