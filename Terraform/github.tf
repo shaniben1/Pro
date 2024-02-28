@@ -9,5 +9,6 @@ resource "github_repository_webhook" "webhook" {
 
   }
   events = ["pull_request"]
+
 }
 
