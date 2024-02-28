@@ -6,6 +6,7 @@ def handler(event, context):
         payload = json.loads(event['body'])
 
 
+
         if '*commit*' in payload:
             changed_files = []
             for commit in payload['commits']:
