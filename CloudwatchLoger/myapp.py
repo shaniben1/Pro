@@ -4,12 +4,16 @@ def handler(event, context):
     # Extract information from GitHub webhook payload
     try:
         payload = json.loads(event['body'])
+        changed_files = []
         if 'commits' in payload:
-            changed_files = []
             for commit in payload['commits']:
-                changed_files.extend(commit['added'])
-                changed_files.extend(commit['modified'])
-                changed_files.extend(commit['removed'])
+                 if 'added' in commit:
+                    changed_files.extend(commit['added'])
+                 if 'modified' in commit:
+                     changed_files.extend(commit['modified'])
+                 if 'removed' in commit:
+                     changed_files.extend(commit['removed'])
+
 
             # Log changed files to CloudWatch Logs
             if changed_files:
