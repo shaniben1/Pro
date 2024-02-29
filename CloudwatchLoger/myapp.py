@@ -2,6 +2,10 @@ import json
 import urllib.request  # library to send requests and get json
 
 
+
+
+
+
 def handler(event, context):
     # Print the entire event object to see the structure
     print("Received event:", json.dumps(event))
@@ -9,7 +13,7 @@ def handler(event, context):
     # Check if the event contains a body
     if 'body' in event:
         # Parse the body from JSON to Python dictionary
-        body_dict = event['body']
+        body_dict = json.loads(event['body'])
         sha = body_dict['pull_request']['head']['sha']
         repo_name = body_dict['pull_request']['head']['repo']['name']
 
