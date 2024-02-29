@@ -1,56 +1,39 @@
 import json
+import urllib.request  # library to send requests and get json
+
+
 def handler(event, context):
-    # Extract information from GitHub webhook payload
-    try:
+    # Print the entire event object to see the structure
+    print("Received event:", json.dumps(event))
 
-        payload = json.dumps(event)
-        print("Received event: {} ", payload)           # print("Received event:", json.dumps(event))
-#        repo_name = payload(['repository']['name'])
+    # Check if the event contains a body
+    if 'body' in event:
+        # Parse the body from JSON to Python dictionary
+        body_dict = event['body']
+        sha = body_dict['pull_request']['head']['sha']
+        repo_name = body_dict['pull_request']['head']['repo']['name']
 
-        if 'commits' in payload:
-            changed_files = []
+        # Extract commits_url from the event body
+        commits_url = body_dict['repository']['commits_url']
+        commits_url = commits_url[:-6]  # Remove "{/sha}" from the end of URL
+        url = f'{commits_url}/{sha}'
+        print(url)
 
-            for commit in payload['commits']:
-                changed_files.extend(commit['added'])
-                changed_files.extend(commit['modified'])
-                changed_files.extend(commit['removed'])
- #       changed_files = []
-  #      if 'commits' in payload:
-  #          for commit in payload['commits']:
-  #               if 'added' in commit:
-  #                  changed_files.extend(commit['added'])
-   #              if 'modified' in commit:
-   #                  changed_files.extend(commit['modified'])
-   #              if 'removed' in commit:
-   #                  changed_files.extend(commit['removed'])
+        # Send GET request using urllib
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
+            resp = response.read().decode('utf-8')
 
-            # Log changed files to CloudWatch Logs
-            if changed_files:
-                log_message = "Changed files:\n" + '\n'.join(changed_files)
-                print(log_message)  # This will be logged in CloudWatch Logs
-#                print("the repository name : {}" .format(repo_name))
-            else:
-                print("No files have been changed.")
-        else:
-            print("No commit information found in payload.")
+        resp_json = json.loads(resp)
+        files = resp_json['files']
 
-    except Exception as e:
-        print(f"Error: {e}")
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Internal Server Error')
-        }
+        print(f'Repository {repo_name} was changed:')
+        for file in files:
+            print(f"{file['filename']} was {file['status']}")
+    else:
+        print("No payload found in the event body")
 
     return {
         'statusCode': 200,
-        'body': json.dumps('Success')
+        'body': json.dumps('Payload printed successfully')
     }
-
-
-
-
-
-
-
-
-
