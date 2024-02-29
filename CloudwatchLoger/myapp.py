@@ -1,10 +1,5 @@
 import json
 import urllib.request  # library to send requests and get json
-
-
-
-
-
 def handler(event, context):
 
     # Print the entire event object to see the structure
