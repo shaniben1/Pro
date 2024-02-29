@@ -2,8 +2,7 @@ resource "github_repository_webhook" "webhook" {
   repository = "Pro"
 
   configuration {
-    url          = "https://quhvwdej85.execute-api.us-east-1.amazonaws.com/dev/webhook"
-    #url = aws_lambda_permission.api_gw.source_arn
+    url          = "${aws_api_gateway_stage.my_stage.invoke_url}/webhook"
     insecure_ssl = false
     content_type = "json"
 

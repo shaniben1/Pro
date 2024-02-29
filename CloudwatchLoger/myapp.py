@@ -1,13 +1,10 @@
 import json
-
-
-
-
 def handler(event, context):
     # Extract information from GitHub webhook payload
     try:
-        payload = json.loads(event['body'])
-        print("Received event:", json.dumps(event))
+
+        payload = json.dumps(event)
+        print("Received event: {} ", payload)           # print("Received event:", json.dumps(event))
 #        repo_name = payload(['repository']['name'])
 
  #       if 'commits' in payload:
@@ -46,3 +43,12 @@ def handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Success')
     }
+
+
+
+
+
+
+
+
+
