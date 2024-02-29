@@ -7,20 +7,22 @@ def handler(event, context):
         print("Received event: {} ", payload)           # print("Received event:", json.dumps(event))
 #        repo_name = payload(['repository']['name'])
 
- #       if 'commits' in payload:
- #           for commit in payload['commits']:
- #               changed_files.extend(commit['added'])
- #               changed_files.extend(commit['modified'])
-#                changed_files.extend(commit['removed'])
-        changed_files = []
         if 'commits' in payload:
+            changed_files = []
+
             for commit in payload['commits']:
-                 if 'added' in commit:
-                    changed_files.extend(commit['added'])
-                 if 'modified' in commit:
-                     changed_files.extend(commit['modified'])
-                 if 'removed' in commit:
-                     changed_files.extend(commit['removed'])
+                changed_files.extend(commit['added'])
+                changed_files.extend(commit['modified'])
+                changed_files.extend(commit['removed'])
+ #       changed_files = []
+  #      if 'commits' in payload:
+  #          for commit in payload['commits']:
+  #               if 'added' in commit:
+  #                  changed_files.extend(commit['added'])
+   #              if 'modified' in commit:
+   #                  changed_files.extend(commit['modified'])
+   #              if 'removed' in commit:
+   #                  changed_files.extend(commit['removed'])
 
             # Log changed files to CloudWatch Logs
             if changed_files:
