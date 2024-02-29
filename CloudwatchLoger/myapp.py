@@ -1,7 +1,5 @@
 import json
-
-
-
+import urllib.request  # library to send requests and get json
 
 
 def handler(event, context):
@@ -11,8 +9,27 @@ def handler(event, context):
     # Check if the event contains a body
     if 'body' in event:
         # Parse the body from JSON to Python dictionary
-        body = json.loads(event['body'])
-        print("Received payload:", json.dumps(body))
+        body_dict = event['body']
+        sha = body_dict['pull_request']['head']['sha']
+        repo_name = body_dict['pull_request']['head']['repo']['name']
+
+        # Extract commits_url from the event body
+        commits_url = body_dict['repository']['commits_url']
+        commits_url = commits_url[:-6]  # Remove "{/sha}" from the end of URL
+        url = f'{commits_url}/{sha}'
+        print(url)
+
+        # Send GET request using urllib
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
+            resp = response.read().decode('utf-8')
+
+        resp_json = json.loads(resp)
+        files = resp_json['files']
+
+        print(f'Repository {repo_name} was changed:')
+        for file in files:
+            print(f"{file['filename']} was {file['status']}")
     else:
         print("No payload found in the event body")
 
@@ -20,8 +37,6 @@ def handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Payload printed successfully')
     }
-
-
 
 
 
