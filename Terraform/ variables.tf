@@ -3,12 +3,10 @@ variable "github_token" {
   type = string
 }
 
-
 variable "accountId" {
   description = "the AWS accountId"
   type = string
 }
-
 
 variable "myregion" {
   description = "AWS region"
@@ -16,13 +14,11 @@ variable "myregion" {
   default = "us-east-1"
 }
 
-
 variable "lambda_function_name" {
   description = "lambda function name"
   type = string
   default = "myapp"
 }
-
 
 variable "endpoint_path" {
   description = "the post endpoint path"
