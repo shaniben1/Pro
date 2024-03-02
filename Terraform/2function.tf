@@ -1,21 +1,3 @@
-/*??
-data "aws_iam_policy" "AmazonAPIGatewayPushToCloudWatchLogs" {
-  name = "AmazonAPIGatewayPushToCloudWatchLogs"
-}
-resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = data.aws_iam_policy.AmazonAPIGatewayPushToCloudWatchLogs.arn
-}
-
-
-resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-#____________________________________________________________________
-*/
-
-
 
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_role"
@@ -66,21 +48,20 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
-#good
+
 resource "aws_lambda_function" "myapp" {
   function_name = "myapp" #var.lambda_function_name
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_myapp.key
 
-  runtime = "python3.9"
-  handler = "myapp.handler"
+  runtime          = "python3.9"
+  handler          = "myapp.handler"
   source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
-  role = aws_iam_role.lambda_role.arn
-  #depends_on = [aws_iam_role_policy_attachment.lambda_logs,aws_cloudwatch_log_group.cloudwatch_myapp]
+  role             = aws_iam_role.lambda_role.arn
 }
 
-#good
+
 data "archive_file" "lambda_myapp_zip" {
   type = "zip"
 
@@ -88,7 +69,7 @@ data "archive_file" "lambda_myapp_zip" {
   output_path = "myapp.zip"
 }
 
-#good
+
 resource "aws_s3_object" "lambda_myapp" {
 
   bucket = aws_s3_bucket.lambda_bucket.id
@@ -99,7 +80,7 @@ resource "aws_s3_object" "lambda_myapp" {
   etag = filemd5(data.archive_file.lambda_myapp_zip.output_path)
 }
 
-#good
+
 resource "aws_cloudwatch_log_group" "cloudwatch_myapp" {
   name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
 
