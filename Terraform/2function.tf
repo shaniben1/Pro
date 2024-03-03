@@ -1,21 +1,3 @@
-/*??
-data "aws_iam_policy" "AmazonAPIGatewayPushToCloudWatchLogs" {
-  name = "AmazonAPIGatewayPushToCloudWatchLogs"
-}
-resource "aws_iam_role_policy_attachment" "myapp_lambda_policy" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = data.aws_iam_policy.AmazonAPIGatewayPushToCloudWatchLogs.arn
-}
-
-
-resource "aws_iam_role_policy_attachment" "AWSLambdaBasicExecutionRole" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-#____________________________________________________________________
-*/
-
-
 
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_role"
