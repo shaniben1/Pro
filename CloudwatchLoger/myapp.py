@@ -8,7 +8,7 @@ def handler(event, context):
     # Check if the event contains a body
     if 'body' in event:
         # action = closed merge_at !=null
-        # Parse the body from JSON to Python dictionary
+        # Parse the body from JSON to Python dictionary (casting)
         body_dict = json.loads(event['body'])
         action = body_dict['action']
         merged = body_dict['pull_request']['merged']
