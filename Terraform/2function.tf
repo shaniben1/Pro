@@ -53,6 +53,7 @@ resource "aws_lambda_function" "myapp" {
   function_name = "myapp" #var.lambda_function_name
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
+
   s3_key    = aws_s3_object.lambda_myapp.key
 
   runtime          = "python3.9"
@@ -68,6 +69,7 @@ data "archive_file" "lambda_myapp_zip" {
   source_dir  = "../CloudwatchLoger"
   output_path = "myapp.zip"
 }
+
 
 
 resource "aws_s3_object" "lambda_myapp" {
