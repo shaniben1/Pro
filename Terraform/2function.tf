@@ -31,7 +31,6 @@ resource "aws_iam_policy" "lambda_logging" {
     {
       "Effect": "Allow",
       "Action": [
-        "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
@@ -50,7 +49,7 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 
 
 resource "aws_lambda_function" "myapp" {
-  function_name = "myapp" #var.lambda_function_name
+  function_name = "myapp" #$var.lambda_function_name
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
 
@@ -60,6 +59,8 @@ resource "aws_lambda_function" "myapp" {
   handler          = "myapp.handler"
   source_code_hash = data.archive_file.lambda_myapp_zip.output_base64sha256
   role             = aws_iam_role.lambda_role.arn
+
+  depends_on = [aws_cloudwatch_log_group.cloudwatch_myapp.id]
 }
 
 
@@ -84,7 +85,7 @@ resource "aws_s3_object" "lambda_myapp" {
 
 
 resource "aws_cloudwatch_log_group" "cloudwatch_myapp" {
-  name = "/aws/lambda/${aws_lambda_function.myapp.function_name}"
+  name = "/aws/lambda/${var.lambda_function_name}"
 
   retention_in_days = 14
 }
